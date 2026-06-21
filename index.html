@@ -1370,7 +1370,7 @@
       };
     }
 
-    function defaultKidForDay(dayIndex, lifeMode = state?.lifeMode || "summer") {
+    function defaultKidForDay(dayIndex, lifeMode = "summer") {
       const weekend = dayIndex >= 5;
       const careBase = {
         kidCareType: "none",
@@ -1513,14 +1513,14 @@
       };
     }
 
-    function defaultDaySchedule(dayIndex) {
+    function defaultDaySchedule(dayIndex, lifeMode = "summer") {
       const weekend = dayIndex >= 5;
       const momOffice = !weekend && DEFAULT_MOM_OFFICE.includes(dayIndex);
       const dadOffice = !weekend && DEFAULT_DAD_OFFICE.includes(dayIndex);
       const base = weekend ? WEEKEND_DEFAULTS : (momOffice || dadOffice) ? OFFICE_DEFAULTS : HOME_DEFAULTS;
       return {
         ...defaultWorkForDay(dayIndex),
-        ...defaultKidForDay(dayIndex),
+        ...defaultKidForDay(dayIndex, lifeMode),
         ...defaultMealsForDay(dayIndex),
         dadMeetings: base.dadMeetings,
         momMeetings: base.momMeetings,
@@ -1532,7 +1532,7 @@
     }
 
     function migrateSchedule(schedule, dayIndex) {
-      const defaults = defaultDaySchedule(dayIndex);
+      const defaults = defaultDaySchedule(dayIndex, state.lifeMode || "summer");
       const merged = { ...defaults, ...schedule };
       if (!schedule?.mealEaters) {
         merged.mealEaters = defaults.mealEaters;
@@ -1565,7 +1565,7 @@
       foodPerson: "dad",
       wheelDay: 0,
       wheelAngle: 0,
-      schedules: DAYS.map((_, i) => defaultDaySchedule(i)),
+      schedules: DAYS.map((_, i) => defaultDaySchedule(i, "summer")),
       week: [],
       dayIndex: 0,
       stats: { work: 72, sanity: 68, spouseSanity: 68, kids: 70, marriage: 75 },
@@ -3601,8 +3601,12 @@
       applyLifeModeToSchedules();
       updateUILabels();
       if (state.semiTab === "kids") renderWeeklyKidsEditor();
-      if (state.week.length) refreshAllWeekPlans();
-      saveSettings();
+      if (state.semiTab === "meals") renderMealsEditor();
+      if (state.week.length) {
+        simulateWeek();
+      } else {
+        saveSettings();
+      }
     };
 
     document.getElementById("themeSelect").onchange = (e) => {
