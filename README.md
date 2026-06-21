@@ -4,9 +4,19 @@ A single-page web app for planning a summer week when kids are home and both par
 
 No install, no server. Open `index.html` in any modern browser.
 
+## Season mode
+
+Use the header dropdown to switch between **Summer break** and **School year**:
+
+- **Summer break** — camp auto-fill, later bedtimes, summer activities
+- **School year** — Mon–Fri school hours (8:00–3:15), earlier wake/bed, homework and after-school care; dinner defaults to 7 PM
+
+Switching modes updates kid schedules to match. Your saved mode persists in the browser.
+
 ## Quick start
 
 1. Open `index.html` (double-click or drag into Chrome, Edge, Firefox, etc.).
+2. Pick **Summer break** or **School year** in the header.
 2. Set family names and office days under **Family & schedules**.
 3. Fill in work hours, meetings, kids sleep/camp/activities, and dinner times.
 4. Click **Simulate week** to build the timeline and weekly insights.
@@ -51,7 +61,7 @@ No install, no server. Open `index.html` in any modern browser.
 
 ## Saving your data
 
-Settings and schedules are saved automatically in the browser **localStorage** (key: `summer-life-simulator-v6`). Names, office days, themes, and all per-day fields persist when you close the tab and come back.
+Settings and schedules are saved automatically in the browser **localStorage** (key: `summer-life-simulator-v7`). Names, office days, themes, and all per-day fields persist when you close the tab and come back.
 
 - Saved: family info, schedules, theme, dark mode, last tab
 - Not saved: simulation run (stats/timeline/log) — click **Simulate week** again after returning

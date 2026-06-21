@@ -144,7 +144,8 @@
     }
 
     .semi-panel { display: block; }
-    .semi-panel.hidden { display: none; }
+    .semi-panel.hidden,
+    .hidden { display: none !important; }
 
     .setup-grid {
       display: grid;
@@ -887,6 +888,10 @@
         </p>
       </div>
       <div class="appearance">
+        <select id="lifeModeSelect" aria-label="Season mode">
+          <option value="summer">Summer break</option>
+          <option value="school">School year</option>
+        </select>
         <select id="themeSelect" aria-label="Color theme">
           <option value="summer">Summer</option>
           <option value="autumn">Autumn</option>
@@ -969,7 +974,7 @@
 
           <div class="schedule-section">
             <h3 id="workSectionTitle">Work hours</h3>
-            <p class="hint">Set when each person is on the clock and where they work. Office day pickers on the left sync both parents fairly. Kids sleep, camp, and activities are on the Kids schedule tab.</p>
+            <p class="hint" id="workSectionHint">Set when each person is on the clock and where they work. Office day pickers on the left sync both parents fairly. Kids sleep, camp, and activities are on the Kids schedule tab.</p>
             <div class="schedule-duo">
               <div class="person-block dad">
                 <label id="dadWorkLabel">Your work</label>
@@ -1076,7 +1081,7 @@
     <div id="semiKids" class="semi-panel hidden" role="tabpanel">
       <div class="panel">
         <h2>Kids schedule</h2>
-        <p class="hint">Set wake/bed times, dinner, camp or daycare, and activities for each day. Activities: <code>9:00-11:00 Swim [away]</code> — add <code>[away]</code> when kids leave the house.</p>
+        <p class="hint" id="kidsTabHint">Set wake/bed times, dinner, camp or daycare, and activities for each day. Activities: <code>9:00-11:00 Swim [away]</code> — add <code>[away]</code> when kids leave the house.</p>
 
         <div class="dinner-default-row" style="display:flex; gap:0.75rem; align-items:flex-end; flex-wrap:wrap; margin-bottom:1rem;">
           <div>
@@ -1091,8 +1096,11 @@
           <button type="button" class="secondary" id="applyDefaultDinner">Apply to week</button>
         </div>
 
-        <label for="campDays">Auto-fill camp days per week (on simulate)</label>
-        <input id="campDays" type="number" min="0" max="5" value="2" style="max-width: 120px;" />
+          <div id="campDaysRow">
+            <label for="campDays" id="campDaysLabel">Auto-fill camp days per week (on simulate)</label>
+            <input id="campDays" type="number" min="0" max="5" value="2" style="max-width: 120px;" />
+          </div>
+          <p class="hint hidden" id="schoolDaysHint">School year mode: weekdays auto-fill with school hours on simulate. Edit hours per day below.</p>
 
         <h3 id="weeklyKidsTitle" style="margin-top: 1.25rem;">Kids — weekly schedule</h3>
 
@@ -1176,7 +1184,7 @@
   <script>
     const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const FULL = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    const STORAGE_KEY = "summer-life-simulator-v6";
+    const STORAGE_KEY = "summer-life-simulator-v7";
 
     const DEFAULT_FOODS = [
       "Pasta", "Tacos", "Pizza", "Stir-fry", "Grilled chicken", "Salmon",
@@ -1362,15 +1370,40 @@
       };
     }
 
-    function defaultKidForDay(dayIndex) {
+    function defaultKidForDay(dayIndex, lifeMode = state?.lifeMode || "summer") {
       const weekend = dayIndex >= 5;
-      const defaultCampDays = [0, 3];
-      const isCamp = !weekend && defaultCampDays.includes(dayIndex);
       const careBase = {
         kidCareType: "none",
         kidCareStart: "08:30",
         kidCareEnd: "15:00"
       };
+
+      if (lifeMode === "school") {
+        const schoolDinner = { dinnerTime: weekend ? "19:00" : "19:00" };
+        if (weekend) {
+          return {
+            kidWake: "08:00",
+            kidSleep: "21:00",
+            kidDayType: "activities",
+            ...careBase,
+            ...schoolDinner,
+            kidActivities: "10:00-12:00 Sports / errands\n14:00-16:00 Free play at home"
+          };
+        }
+        return {
+          kidWake: "06:45",
+          kidSleep: "20:30",
+          kidDayType: "school",
+          kidCareType: "school",
+          kidCareStart: "08:00",
+          kidCareEnd: "15:15",
+          ...schoolDinner,
+          kidActivities: "15:30-16:30 Homework\n16:30-17:30 Sports practice [away]"
+        };
+      }
+
+      const defaultCampDays = [0, 3];
+      const isCamp = !weekend && defaultCampDays.includes(dayIndex);
       const dinnerBase = { dinnerTime: "21:00" };
       if (weekend) {
         return {
@@ -1402,6 +1435,45 @@
         ...dinnerBase,
         kidActivities: "9:00-11:00 Free play at home\n14:00-15:30 Library / story time [away]"
       };
+    }
+
+    function applyLifeModeToSchedules() {
+      for (let i = 0; i < 7; i++) {
+        const kid = defaultKidForDay(i, state.lifeMode);
+        state.schedules[i] = { ...state.schedules[i], ...kid };
+      }
+    }
+
+    function kidCareTypeOptions(current, weekend) {
+      if (state.lifeMode === "school") {
+        let html = `
+          <option value="none" ${current === "none" ? "selected" : ""}>None — home</option>
+          <option value="school" ${current === "school" ? "selected" : ""}>School</option>
+          <option value="daycare" ${current === "daycare" ? "selected" : ""}>After-school care</option>`;
+        if (weekend) {
+          html += `<option value="camp" ${current === "camp" ? "selected" : ""}>Camp / program</option>`;
+        }
+        return html;
+      }
+      return `
+        <option value="none" ${current === "none" ? "selected" : ""}>None — home or activities below</option>
+        <option value="camp" ${current === "camp" ? "selected" : ""}>Summer camp</option>
+        <option value="daycare" ${current === "daycare" ? "selected" : ""}>Daycare</option>
+      `;
+    }
+
+    function kidDayTypeOptions(current) {
+      const opts = [
+        { value: "home", label: "At home" },
+        { value: "camp", label: "Camp day" },
+        { value: "activities", label: "Scheduled activities" }
+      ];
+      if (state.lifeMode === "school") {
+        opts.unshift({ value: "school", label: "School day" });
+      }
+      return opts.map((o) =>
+        `<option value="${o.value}" ${current === o.value ? "selected" : ""}>${o.label}</option>`
+      ).join("");
     }
 
     const DINNER_OPTIONS = [
@@ -1484,6 +1556,7 @@
       momOfficeDays: new Set(DEFAULT_MOM_OFFICE),
       kidCount: 2,
       campDays: 2,
+      lifeMode: "summer",
       theme: "summer",
       darkMode: false,
       semiTab: "sim",
@@ -1649,7 +1722,8 @@
       const start = parseClock(schedule.kidCareStart);
       const end = parseClock(schedule.kidCareEnd);
       if (start === null || end === null || end <= start) return null;
-      const label = schedule.kidCareType === "daycare" ? "Daycare" : "Summer camp";
+      const labels = { daycare: "Daycare", school: "School", camp: "Summer camp" };
+      const label = labels[schedule.kidCareType] || "Summer camp";
       return {
         start, end, away: true, type: schedule.kidCareType,
         label, time: formatRange(start, end)
@@ -1765,16 +1839,18 @@
       const label = document.getElementById(kidsFieldId(dayIndex, "care-label"));
       const startEl = document.getElementById(kidsFieldId(dayIndex, "care-start"));
       const endEl = document.getElementById(kidsFieldId(dayIndex, "care-end"));
-      if (typeEl.value === "daycare") {
-        if (label) label.textContent = "Daycare hours";
-        if (startEl?.value === "08:30") {
+      if (typeEl.value === "school") {
+        if (label) label.textContent = "School hours";
+      } else if (typeEl.value === "daycare") {
+        if (label) label.textContent = state.lifeMode === "school" ? "After-school hours" : "Daycare hours";
+        if (startEl?.value === "08:30" && state.lifeMode !== "school") {
           startEl.value = "08:00";
           if (endEl) endEl.value = "17:00";
         }
       } else if (typeEl.value === "camp") {
         if (label) label.textContent = "Camp hours";
       } else if (label) {
-        label.textContent = "Camp / daycare hours";
+        label.textContent = state.lifeMode === "school" ? "School / care hours" : "Camp / daycare hours";
       }
     }
 
@@ -1862,9 +1938,44 @@
         ocean: "Ocean Life Simulator",
         sunset: "Sunset Life Simulator"
       };
-      document.getElementById("pageTitle").textContent = themeTitles[state.theme] || "Life Simulator";
-      document.getElementById("subtitle").textContent =
-        `${kids} home for the break. Both ${y} and ${s} can mix WFH and office days. Set camp/daycare hours per day — the sim builds the timeline and flags crunch points.`;
+      const schoolTitles = {
+        summer: "School Week Simulator",
+        autumn: "School Week Simulator",
+        winter: "School Week Simulator",
+        spring: "School Week Simulator",
+        ocean: "School Week Simulator",
+        sunset: "School Week Simulator"
+      };
+      const isSchool = state.lifeMode === "school";
+      document.getElementById("pageTitle").textContent = isSchool
+        ? (schoolTitles[state.theme] || "School Week Simulator")
+        : (themeTitles[state.theme] || "Life Simulator");
+      document.getElementById("subtitle").textContent = isSchool
+        ? `${kids} in class Mon–Fri while ${y} and ${s} mix WFH and office. Set school drop-off/pickup, homework, and activities — the sim flags crunch when nobody's home.`
+        : `${kids} home for the break. Both ${y} and ${s} can mix WFH and office days. Set camp/daycare hours per day — the sim builds the timeline and flags crunch points.`;
+      const modeSel = document.getElementById("lifeModeSelect");
+      if (modeSel) modeSel.value = state.lifeMode || "summer";
+      updateLifeModeUI();
+    }
+
+    function updateLifeModeUI() {
+      const isSchool = state.lifeMode === "school";
+      const campRow = document.getElementById("campDaysRow");
+      const schoolHint = document.getElementById("schoolDaysHint");
+      const kidsHint = document.getElementById("kidsTabHint");
+      const workHint = document.getElementById("workSectionHint");
+      if (campRow) campRow.classList.toggle("hidden", isSchool);
+      if (schoolHint) schoolHint.classList.toggle("hidden", !isSchool);
+      if (kidsHint) {
+        kidsHint.textContent = isSchool
+          ? "School year: set wake/bed, school or after-school care, homework, and activities. Activities: 9:00-11:00 Swim [away]"
+          : "Set wake/bed times, dinner, camp or daycare, and activities for each day. Activities: 9:00-11:00 Swim [away] — add [away] when kids leave the house.";
+      }
+      if (workHint) {
+        workHint.textContent = isSchool
+          ? "Set when each person is on the clock and where they work. Kids school hours are on the Kids schedule tab."
+          : "Set when each person is on the clock and where they work. Office day pickers on the left sync both parents fairly. Kids sleep, camp, and activities are on the Kids schedule tab.";
+      }
     }
 
     function saveSettings() {
@@ -1875,6 +1986,7 @@
           kidNames: document.getElementById("kidNames").value,
           kidCount: state.kidCount,
           campDays: state.campDays,
+          lifeMode: state.lifeMode,
           theme: state.theme,
           darkMode: state.darkMode,
           dadOfficeDays: [...state.dadOfficeDays],
@@ -1902,6 +2014,7 @@
         if (data.kidCount) state.kidCount = data.kidCount;
         if (data.kidNames) document.getElementById("kidNames").value = data.kidNames;
         if (data.campDays != null) state.campDays = data.campDays;
+        if (data.lifeMode) state.lifeMode = data.lifeMode;
         if (data.theme) state.theme = data.theme;
         if (data.darkMode != null) state.darkMode = data.darkMode;
         if (data.semiTab) state.semiTab = data.semiTab;
@@ -2040,7 +2153,9 @@
         kidActivities: document.getElementById(kidsFieldId(dayIndex, "activities")).value,
         dinnerTime: document.getElementById(kidsFieldId(dayIndex, "dinner")).value
       };
-      if (careType !== "none") {
+      if (careType === "school") {
+        state.schedules[dayIndex].kidDayType = "school";
+      } else if (careType !== "none") {
         state.schedules[dayIndex].kidDayType = careType === "camp" ? "camp" : "activities";
       }
     }
@@ -2068,8 +2183,9 @@
     function kidsDayTag(dayIndex) {
       const s = state.schedules[dayIndex];
       if (dayIndex >= 5) return "Weekend";
+      if (s.kidCareType === "school") return "School";
       if (s.kidCareType === "camp") return "Camp";
-      if (s.kidCareType === "daycare") return "Daycare";
+      if (s.kidCareType === "daycare") return "After-school";
       if (s.kidDayType === "activities") return "Activities";
       return "At home";
     }
@@ -2077,7 +2193,12 @@
     function buildWeeklyKidsDayCard(dayIndex) {
       const s = state.schedules[dayIndex];
       const careOn = s.kidCareType && s.kidCareType !== "none";
-      const careLabel = s.kidCareType === "daycare" ? "Daycare hours" : s.kidCareType === "camp" ? "Camp hours" : "Camp / daycare hours";
+      const careLabels = {
+        school: "School hours",
+        daycare: state.lifeMode === "school" ? "After-school hours" : "Daycare hours",
+        camp: "Camp hours"
+      };
+      const careLabel = careLabels[s.kidCareType] || (state.lifeMode === "school" ? "School / care hours" : "Camp / daycare hours");
       const card = document.createElement("div");
       card.className = "weekly-kids-card";
       card.innerHTML = `
@@ -2094,12 +2215,8 @@
         </div>
         <label for="${kidsFieldId(dayIndex, "dinner")}">Dinner time</label>
         <select id="${kidsFieldId(dayIndex, "dinner")}">${dinnerSelectHtml(dayIndex, s.dinnerTime)}</select>
-        <label for="${kidsFieldId(dayIndex, "care-type")}">Camp / daycare</label>
-        <select id="${kidsFieldId(dayIndex, "care-type")}">
-          <option value="none" ${s.kidCareType === "none" ? "selected" : ""}>None — home or activities</option>
-          <option value="camp" ${s.kidCareType === "camp" ? "selected" : ""}>Summer camp</option>
-          <option value="daycare" ${s.kidCareType === "daycare" ? "selected" : ""}>Daycare</option>
-        </select>
+        <label for="${kidsFieldId(dayIndex, "care-type")}">${state.lifeMode === "school" ? "School / care" : "Camp / daycare"}</label>
+        <select id="${kidsFieldId(dayIndex, "care-type")}">${kidCareTypeOptions(s.kidCareType || "none", dayIndex >= 5)}</select>
         <div class="care-block ${careOn ? "" : "hidden"}" id="${kidsFieldId(dayIndex, "care-block")}">
           <label id="${kidsFieldId(dayIndex, "care-label")}">${careLabel}</label>
           <div class="work-row">
@@ -2108,11 +2225,7 @@
           </div>
         </div>
         <label for="${kidsFieldId(dayIndex, "day-type")}">Day style</label>
-        <select id="${kidsFieldId(dayIndex, "day-type")}">
-          <option value="home" ${s.kidDayType === "home" ? "selected" : ""}>At home</option>
-          <option value="camp" ${s.kidDayType === "camp" ? "selected" : ""}>Camp day</option>
-          <option value="activities" ${s.kidDayType === "activities" ? "selected" : ""}>Scheduled activities</option>
-        </select>
+        <select id="${kidsFieldId(dayIndex, "day-type")}">${kidDayTypeOptions(s.kidDayType || "home")}</select>
         <label for="${kidsFieldId(dayIndex, "activities")}">Activities</label>
         <textarea id="${kidsFieldId(dayIndex, "activities")}" placeholder="9:00-11:00 Swim [away]&#10;16:00-17:00 Free play at home">${s.kidActivities || ""}</textarea>
       `;
@@ -2122,18 +2235,23 @@
         el.addEventListener(el.tagName === "TEXTAREA" ? "input" : "change", () => {
           if (el.id === kidsFieldId(dayIndex, "care-type")) {
             const care = el.value;
-            if (care === "camp") {
+            if (care === "school") {
+              document.getElementById(kidsFieldId(dayIndex, "day-type")).value = "school";
+              document.getElementById(kidsFieldId(dayIndex, "care-start")).value = "08:00";
+              document.getElementById(kidsFieldId(dayIndex, "care-end")).value = "15:15";
+            } else if (care === "camp") {
               document.getElementById(kidsFieldId(dayIndex, "day-type")).value = "camp";
               document.getElementById(kidsFieldId(dayIndex, "care-start")).value = "08:30";
               document.getElementById(kidsFieldId(dayIndex, "care-end")).value = "15:00";
             } else if (care === "daycare") {
               document.getElementById(kidsFieldId(dayIndex, "day-type")).value = "activities";
-              document.getElementById(kidsFieldId(dayIndex, "care-start")).value = "08:00";
-              document.getElementById(kidsFieldId(dayIndex, "care-end")).value = "17:00";
+              document.getElementById(kidsFieldId(dayIndex, "care-start")).value = state.lifeMode === "school" ? "15:15" : "08:00";
+              document.getElementById(kidsFieldId(dayIndex, "care-end")).value = state.lifeMode === "school" ? "17:30" : "17:00";
             }
           }
-          if (el.id === kidsFieldId(dayIndex, "day-type") && el.value === "camp") {
-            document.getElementById(kidsFieldId(dayIndex, "care-type")).value = "camp";
+          if (el.id === kidsFieldId(dayIndex, "day-type")) {
+            if (el.value === "camp") document.getElementById(kidsFieldId(dayIndex, "care-type")).value = "camp";
+            if (el.value === "school") document.getElementById(kidsFieldId(dayIndex, "care-type")).value = "school";
           }
           toggleKidCareBlockForDay(dayIndex);
           onChange();
@@ -2706,8 +2824,8 @@
 
     function campToday(day, weekCampDays) {
       const schedule = state.schedules[day];
-      if (schedule?.kidCareType === "camp" || schedule?.kidCareType === "daycare") return true;
-      if (schedule?.kidDayType === "camp") return true;
+      if (schedule?.kidCareType === "camp" || schedule?.kidCareType === "daycare" || schedule?.kidCareType === "school") return true;
+      if (schedule?.kidDayType === "camp" || schedule?.kidDayType === "school") return true;
       return weekCampDays.includes(day);
     }
 
@@ -3234,10 +3352,10 @@
 
       let text = `${y} office: ${dadOfficeNames}. ${s} office: ${momOfficeNames}. `;
       if (bothOfficeDays.length) {
-        text += `${bothOfficeDays.map((d) => DAYS[d.day]).join(", ")}: both at office — camp/daycare required. `;
+        text += `${bothOfficeDays.map((d) => DAYS[d.day]).join(", ")}: both at office — ${state.lifeMode === "school" ? "school or after-school care" : "camp/daycare"} required. `;
       }
       if (hardDays.length >= 2) {
-        text += `Solo-parent days (${hardDays.map((d) => DAYS[d.day]).join(" & ")}) need camp/daycare or staggered calls. `;
+        text += `Solo-parent days (${hardDays.map((d) => DAYS[d.day]).join(" & ")}) need ${state.lifeMode === "school" ? "school coverage or staggered calls" : "camp/daycare or staggered calls"}. `;
       }
       if (overlapDays.length) {
         text += `${overlapDays.map((d) => DAYS[d.day]).join(", ")} has overlapping meetings — stagger calls or book sitter time. `;
@@ -3272,7 +3390,9 @@
       } else if (state.stats.work < 55) {
         text += `Work focus is low — move optional meetings off solo-parent days.`;
       } else {
-        text += `Schedules look manageable if camp/daycare covers office days and lunches don't fully overlap.`;
+        text += state.lifeMode === "school"
+          ? `Schedules look manageable if school hours cover office days and lunches don't fully overlap.`
+          : `Schedules look manageable if camp/daycare covers office days and lunches don't fully overlap.`;
       }
       return text;
     }
@@ -3287,15 +3407,29 @@
       state.log = [];
       state.dayIndex = 0;
 
-      const campPool = [0, 1, 2, 3, 4].sort(() => rng() - 0.5).slice(0, state.campDays);
-      campPool.forEach((dayIdx) => {
-        if (state.schedules[dayIdx].kidCareType === "none") {
-          state.schedules[dayIdx].kidCareType = "camp";
-          state.schedules[dayIdx].kidCareStart = "08:30";
-          state.schedules[dayIdx].kidCareEnd = "15:00";
-          state.schedules[dayIdx].kidDayType = "camp";
-        }
-      });
+      let campPool = [];
+      if (state.lifeMode === "school") {
+        campPool = [0, 1, 2, 3, 4];
+        campPool.forEach((dayIdx) => {
+          const cur = state.schedules[dayIdx].kidCareType;
+          if (cur === "none" || cur === "camp") {
+            state.schedules[dayIdx].kidCareType = "school";
+            state.schedules[dayIdx].kidCareStart = "08:00";
+            state.schedules[dayIdx].kidCareEnd = "15:15";
+            state.schedules[dayIdx].kidDayType = "school";
+          }
+        });
+      } else {
+        campPool = [0, 1, 2, 3, 4].sort(() => rng() - 0.5).slice(0, state.campDays);
+        campPool.forEach((dayIdx) => {
+          if (state.schedules[dayIdx].kidCareType === "none") {
+            state.schedules[dayIdx].kidCareType = "camp";
+            state.schedules[dayIdx].kidCareStart = "08:30";
+            state.schedules[dayIdx].kidCareEnd = "15:00";
+            state.schedules[dayIdx].kidDayType = "camp";
+          }
+        });
+      }
       state.week = DAYS.map((_, i) => {
         const plan = buildDayPlan(i, campPool);
         const events = randomEvents(plan);
@@ -3363,7 +3497,8 @@
       if (dadLoc === "office" && momLoc === "office") locTag = " · both office";
       else if (dadLoc === "office") locTag = " · you office";
       else if (momLoc === "office") locTag = " · partner office";
-      if (care === "camp") locTag += " · camp";
+      if (care === "school") locTag += " · school";
+      else if (care === "camp") locTag += " · camp";
       else if (care === "daycare") locTag += " · daycare";
       const dinner = state.schedules[i]?.dinnerIdea;
       if (dinner) locTag += ` · ${dinner}`;
@@ -3460,6 +3595,15 @@
     document.querySelectorAll(".semi-tabs button").forEach((btn) => {
       btn.onclick = () => switchSemiTab(btn.dataset.semi);
     });
+
+    document.getElementById("lifeModeSelect").onchange = (e) => {
+      state.lifeMode = e.target.value;
+      applyLifeModeToSchedules();
+      updateUILabels();
+      if (state.semiTab === "kids") renderWeeklyKidsEditor();
+      if (state.week.length) refreshAllWeekPlans();
+      saveSettings();
+    };
 
     document.getElementById("themeSelect").onchange = (e) => {
       state.theme = e.target.value;
