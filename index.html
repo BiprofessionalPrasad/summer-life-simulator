@@ -920,7 +920,7 @@
     <div id="semiSim" class="semi-panel" role="tabpanel">
       <div class="panel">
         <div class="legend" id="legend">
-          <span class="dad" id="legendDad">You (WFH)</span>
+          <span class="dad" id="legendDad">You</span>
           <span class="mom" id="legendMom">Partner</span>
           <span class="kids" id="legendKids">Kids</span>
         </div>
@@ -1907,14 +1907,27 @@
       document.getElementById("themeSelect").value = state.theme;
     }
 
+    function parentLegendLabel(person, dayIndex = state.dayIndex) {
+      const name = person === "dad" ? state.yourName : state.spouseName;
+      const sch = state.schedules[dayIndex];
+      if (!sch) return name;
+      const loc = person === "dad" ? sch.dadWorkLocation : sch.momWorkLocation;
+      const tag = workLocationTag(loc, dayIndex >= 5);
+      return tag === "Weekend" ? name : `${name} (${tag})`;
+    }
+
+    function updateLegendForDay(dayIndex = state.dayIndex) {
+      document.getElementById("legendDad").textContent = parentLegendLabel("dad", dayIndex);
+      document.getElementById("legendMom").textContent = parentLegendLabel("mom", dayIndex);
+      document.getElementById("legendKids").textContent = kidsLabel();
+    }
+
     function updateUILabels() {
       const y = state.yourName;
       const s = state.spouseName;
       const kids = kidsLabel();
 
-      document.getElementById("legendDad").textContent = `${y} (WFH)`;
-      document.getElementById("legendMom").textContent = s;
-      document.getElementById("legendKids").textContent = kids;
+      updateLegendForDay();
       document.getElementById("dadOfficeDaysLabel").textContent = `${y} office days (pick up to 3)`;
       document.getElementById("momOfficeDaysLabel").textContent = `${s} office days (pick up to 3)`;
       document.getElementById("dadMeetingsLabel").textContent = `${y}'s meetings`;
@@ -3539,6 +3552,7 @@
 
     function renderWeek() {
       renderWeekTabs();
+      updateLegendForDay(state.dayIndex);
 
       const day = state.week[state.dayIndex];
       if (!day) return;

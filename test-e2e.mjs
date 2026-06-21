@@ -129,6 +129,16 @@ async function run() {
     const wheelResult = await page.textContent("#wheelResult");
     assert("spin wheel result", wheelResult && wheelResult.includes(":"), wheelResult);
 
+    // Legend reflects selected day's work location
+    await page.click('button[data-semi="sim"]');
+    let legendDad = await page.textContent("#legendDad");
+    assert("legend dad has name", legendDad.includes("You"), legendDad);
+    assert("legend shows location tag", /\((WFH|Office|Off \/ PTO)\)/.test(legendDad), legendDad);
+    await page.locator("#weekTabs button", { hasText: /^Tue/ }).click();
+    await page.waitForTimeout(200);
+    legendDad = await page.textContent("#legendDad");
+    assert("legend tue shows office", legendDad.includes("Office"), legendDad);
+
   } catch (e) {
     failures.push({ name: "exception", detail: e.message });
   } finally {
