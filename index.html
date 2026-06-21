@@ -295,12 +295,16 @@
 
     .stats {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 0.75rem;
       margin-bottom: 1.25rem;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 960px) {
+      .stats { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 560px) {
       .stats { grid-template-columns: repeat(2, 1fr); }
     }
 
@@ -1491,7 +1495,7 @@
       schedules: DAYS.map((_, i) => defaultDaySchedule(i)),
       week: [],
       dayIndex: 0,
-      stats: { work: 72, sanity: 68, kids: 70, marriage: 75 },
+      stats: { work: 72, sanity: 68, spouseSanity: 68, kids: 70, marriage: 75 },
       log: [],
       seed: Date.now()
     };
@@ -2676,18 +2680,26 @@
 
     function renderStats() {
       const s = state.stats;
-      const colors = { work: "var(--dad)", sanity: "var(--accent)", kids: "var(--kids)", marriage: "var(--mom)" };
+      const statOrder = ["work", "sanity", "spouseSanity", "kids", "marriage"];
+      const colors = {
+        work: "var(--dad)",
+        sanity: "var(--dad)",
+        spouseSanity: "var(--mom)",
+        kids: "var(--kids)",
+        marriage: "var(--accent)"
+      };
       const labels = {
         work: "Work focus",
         sanity: `${state.yourName}'s sanity`,
+        spouseSanity: `${state.spouseName}'s sanity`,
         kids: "Kid happiness",
         marriage: "Couple bandwidth"
       };
-      document.getElementById("stats").innerHTML = Object.keys(labels).map((k) => `
+      document.getElementById("stats").innerHTML = statOrder.map((k) => `
         <div class="stat">
           <div class="label">${labels[k]}</div>
-          <div class="value">${Math.round(s[k])}</div>
-          <div class="bar"><span style="width:${s[k]}%;background:${colors[k]}"></span></div>
+          <div class="value">${Math.round(s[k] ?? 0)}</div>
+          <div class="bar"><span style="width:${clamp(s[k] ?? 0)}%;background:${colors[k]}"></span></div>
         </div>
       `).join("");
     }
@@ -3149,49 +3161,64 @@
     }
 
     function scoreDay(plan, events) {
-      let work = 0, sanity = 0, kids = 0, marriage = 0;
-      const conflicts = plan.slots.filter((s) => s.conflict).length;
+      let work = 0, sanity = 0, spouseSanity = 0, kids = 0, marriage = 0;
+      const y = state.yourName;
+      const s = state.spouseName;
+      const conflicts = plan.slots.filter((sl) => sl.conflict).length;
       const dadMeetings = plan.dadMeetings.length;
-
-      const soloDay = (plan.momOffice && !plan.dadOffice) || (plan.dadOffice && !plan.momOffice);
-      const crunchDay = soloDay || plan.bothOffice;
+      const momMeetings = plan.momMeetings.length;
+      const dadSoloParent = plan.momOffice && !plan.dadOffice;
+      const momSoloParent = plan.dadOffice && !plan.momOffice;
+      const crunchDay = dadSoloParent || momSoloParent || plan.bothOffice;
 
       if (plan.weekend) {
-        work = 8; sanity = 12; kids = 14; marriage = 10;
+        work = 8; sanity = 12; spouseSanity = 12; kids = 14; marriage = 10;
       } else if (plan.kidCare || plan.camp) {
         work = crunchDay ? 8 + dadMeetings : 10 + dadMeetings;
-        sanity = crunchDay ? 4 : 10;
+        sanity = crunchDay ? (dadSoloParent ? 2 : 8) : 10;
+        spouseSanity = crunchDay ? (momSoloParent ? 2 : 8) : 10;
+        if (plan.bothOffice) { sanity -= 4; spouseSanity -= 4; }
         kids = 12;
         marriage = crunchDay ? 2 : 8;
       } else if (crunchDay) {
         work = 4 + dadMeetings * 2;
-        sanity = -12 - dadMeetings - (plan.bothOffice ? 6 : 0);
+        sanity = dadSoloParent ? -12 - dadMeetings : (plan.bothOffice ? -9 - dadMeetings : 2);
+        spouseSanity = momSoloParent ? -12 - momMeetings : (plan.bothOffice ? -9 - momMeetings : 2);
         kids = -8;
         marriage = -6;
       } else {
         work = 6 + dadMeetings * 2;
-        sanity = 8;
+        sanity = 8 - Math.min(momMeetings, 3);
+        spouseSanity = 8 - Math.min(dadMeetings, 3);
         kids = 10;
         marriage = 12;
       }
 
       work -= conflicts * 2;
       sanity -= conflicts * 3;
+      spouseSanity -= conflicts * 3;
       kids -= crunchDay && !plan.kidCare ? 6 : 0;
       kids -= conflicts > 2 ? 4 : 0;
 
       events.forEach((e) => {
         if (e.includes("walks in during")) { work -= 6; sanity -= 5; }
-        if (e.includes("overlapping meetings")) { work -= 8; sanity -= 6; kids -= 5; }
-        if (e.includes("running late")) { sanity -= 8; marriage -= 4; }
-        if (e.includes("Golden hour")) { work += 8; sanity += 6; marriage += 5; }
-        if (e.includes("Camp pickup smooth")) { work += 10; sanity += 5; kids += 4; }
-        if (e.includes("Lunch overlap")) { sanity -= 4; marriage -= 2; }
-        if (e.includes("free hour")) { work += 6; sanity += 5; }
-        if (e.includes("deadline")) { work += 8; sanity -= 6; marriage -= 3; }
+        if (e.includes("via text during")) { spouseSanity -= 5; }
+        if (e.includes("overlapping meetings")) { work -= 8; sanity -= 6; spouseSanity -= 6; kids -= 5; }
+        if (e.includes(`${s} texts: running late`)) { sanity -= 8; marriage -= 4; }
+        if (e.includes(`${y} texts: running late`)) { spouseSanity -= 8; marriage -= 4; }
+        if (e.includes("Golden hour")) { work += 8; sanity += 6; spouseSanity += 6; marriage += 5; }
+        if (e.includes("Camp pickup smooth")) { work += 10; sanity += 5; spouseSanity += 5; kids += 4; }
+        if (e.includes("Lunch overlap")) { sanity -= 4; spouseSanity -= 4; marriage -= 2; }
+        if (e.includes(`free hour for ${y}`)) { work += 6; sanity += 5; }
+        else if (e.includes(`free hour for ${s}`)) { work += 6; spouseSanity += 5; }
+        else if (e.includes("free hour")) { work += 6; sanity += 3; spouseSanity += 3; }
+        if (e.includes(`deadline pops up — ${y}`)) { work += 8; sanity -= 6; marriage -= 3; }
+        if (e.includes(`deadline pops up — ${s}`)) { spouseSanity -= 6; marriage -= 3; }
+        if (e.includes(`— ${y}'s morning meeting squeezed`)) { sanity -= 4; }
+        if (e.includes(`— ${s}'s morning meeting squeezed`)) { spouseSanity -= 4; }
       });
 
-      return { work, sanity, kids, marriage };
+      return { work, sanity, spouseSanity, kids, marriage };
     }
 
     function insightForWeek() {
@@ -3236,8 +3263,12 @@
       if (noIdeaDays.length >= 4) {
         text += `Spin the dinner wheel on Meals & food for ${noIdeaDays.slice(0, 3).map((d) => DAYS[d]).join(", ")}${noIdeaDays.length > 3 ? "…" : ""}. `;
       }
-      if (state.stats.sanity < 55) {
-        text += `Sanity is dipping — block a walk during the other person's lunch.`;
+      if (state.stats.sanity < 55 && state.stats.spouseSanity < 55) {
+        text += `Both ${y} and ${s} are running low — tag-team a break and move one meeting off a solo-parent day.`;
+      } else if (state.stats.sanity < 55) {
+        text += `${y}'s sanity is dipping — block a walk during ${s}'s lunch.`;
+      } else if (state.stats.spouseSanity < 55) {
+        text += `${s}'s sanity is dipping — cover an evening or shift a call so they can reset.`;
       } else if (state.stats.work < 55) {
         text += `Work focus is low — move optional meetings off solo-parent days.`;
       } else {
@@ -3252,7 +3283,7 @@
       syncOfficeDaysFromSchedules();
       renderOfficeDays();
       state.campDays = Number(document.getElementById("campDays").value);
-      state.stats = { work: 72, sanity: 68, kids: 70, marriage: 75 };
+      state.stats = { work: 72, sanity: 68, spouseSanity: 68, kids: 70, marriage: 75 };
       state.log = [];
       state.dayIndex = 0;
 
