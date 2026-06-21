@@ -20,6 +20,7 @@ No install, no server. Open `index.html` in any modern browser.
 | **Family & schedules** | Names, office-day pickers, per-day parent work hours, commute, meetings, and lunch |
 | **Weekly meetings** | Full week side-by-side — your meetings and your partner's, plus lunch per day |
 | **Kids schedule** | Wake/bed, dinner time (7–10 PM), camp/daycare, activities, and camp auto-fill |
+| **Meals & food** | Household menu, who likes what, who eats breakfast/lunch/dinner per day, dinner spin wheel |
 
 ## Schedule formats
 
@@ -37,7 +38,9 @@ No install, no server. Open `index.html` in any modern browser.
 16:00-17:00 Free play at home
 ```
 
-**Dinner** — pick 7:00, 8:00, 9:00, or 10:00 PM per day (default 9:00 PM). Use **Apply to week** to set the same time for all days.
+**Dinner** — pick 7:00, 8:00, 9:00, or 10:00 PM per day on the Kids schedule tab (default 9:00 PM). Use **Meals & food** to spin the wheel or pick a dinner idea based on who’s eating and what they like.
+
+**Food prefs** — tap each family member, check foods they like. The dinner wheel draws from foods liked by that day’s dinner eaters.
 
 ## What the sim shows
 
@@ -48,7 +51,7 @@ No install, no server. Open `index.html` in any modern browser.
 
 ## Saving your data
 
-Settings and schedules are saved automatically in the browser **localStorage** (key: `summer-life-simulator-v5`). Names, office days, themes, and all per-day fields persist when you close the tab and come back.
+Settings and schedules are saved automatically in the browser **localStorage** (key: `summer-life-simulator-v6`). Names, office days, themes, and all per-day fields persist when you close the tab and come back.
 
 - Saved: family info, schedules, theme, dark mode, last tab
 - Not saved: simulation run (stats/timeline/log) — click **Simulate week** again after returning

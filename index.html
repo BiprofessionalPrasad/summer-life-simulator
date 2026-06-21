@@ -538,6 +538,198 @@
       margin-bottom: 1rem;
     }
 
+    .food-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .food-chip {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 999px;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+      color: var(--ink);
+    }
+
+    .food-chip.on {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent-on);
+    }
+
+    .food-chip .remove {
+      margin-left: 0.35rem;
+      opacity: 0.6;
+      font-weight: bold;
+    }
+
+    .person-picks.food-persons { margin-bottom: 0.75rem; }
+
+    .food-likes-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.35rem;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .food-like-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.85rem;
+    }
+
+    .food-like-item input { width: auto; margin: 0; }
+
+    .meals-layout {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .meals-layout { grid-template-columns: 1fr; }
+    }
+
+    .wheel-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem;
+      text-align: center;
+      position: sticky;
+      top: 1rem;
+    }
+
+    .wheel-container {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin: 0.75rem auto;
+    }
+
+    .wheel-pointer {
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.4rem;
+      z-index: 2;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 4px solid var(--border);
+      box-shadow: var(--shadow);
+      transition: transform 4s cubic-bezier(0.15, 0.85, 0.2, 1);
+    }
+
+    .wheel-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 3px solid var(--border);
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .wheel-result {
+      font-weight: 600;
+      font-size: 1.05rem;
+      min-height: 1.5rem;
+      margin: 0.5rem 0;
+      color: var(--accent-on);
+    }
+
+    .wheel-hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .weekly-meals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0.85rem;
+    }
+
+    .weekly-meals-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 12px;
+      padding: 0.85rem;
+    }
+
+    .meal-eaters-block {
+      margin-bottom: 0.65rem;
+    }
+
+    .meal-eaters-block .meal-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+      display: block;
+    }
+
+    .meal-eater-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 0.75rem;
+      font-size: 0.82rem;
+    }
+
+    .meal-eater-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin: 0;
+      color: var(--ink);
+    }
+
+    .meal-eater-row input { width: auto; margin: 0; }
+
+    .dinner-idea-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem;
+      align-items: end;
+      margin-top: 0.5rem;
+    }
+
+    .dinner-idea-row select { margin-bottom: 0; }
+
+    .slot.meal {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .tag.meal { background: var(--accent-soft); color: var(--accent-on); }
+
     .work-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -713,6 +905,7 @@
       <button type="button" role="tab" id="semiTabSetup" aria-selected="false" data-semi="setup">Family & schedules</button>
       <button type="button" role="tab" id="semiTabMeetings" aria-selected="false" data-semi="meetings">Weekly meetings</button>
       <button type="button" role="tab" id="semiTabKids" aria-selected="false" data-semi="kids">Kids schedule</button>
+      <button type="button" role="tab" id="semiTabMeals" aria-selected="false" data-semi="meals">Meals & food</button>
     </div>
 
     <div id="semiSim" class="semi-panel" role="tabpanel">
@@ -931,12 +1124,66 @@
         </div>
       </div>
     </div>
+
+    <div id="semiMeals" class="semi-panel hidden" role="tabpanel">
+      <div class="panel">
+        <h2>Meals &amp; food</h2>
+        <p class="hint">Build your household menu, mark who likes what, choose who eats each meal per day, then spin the wheel for dinner ideas once dinner time is set on the Kids schedule tab.</p>
+
+        <h3>Household menu</h3>
+        <div class="food-chips" id="foodMenuChips"></div>
+        <div class="work-row" style="max-width: 360px; margin-bottom: 1.25rem;">
+          <input id="customFoodInput" type="text" placeholder="Add custom food…" maxlength="32" />
+          <button type="button" class="secondary" id="addCustomFood">Add</button>
+        </div>
+
+        <h3 id="foodLikesTitle">Who likes what</h3>
+        <div class="person-picks food-persons" id="foodPersonPicks"></div>
+        <div class="food-likes-list" id="foodLikesList"></div>
+
+        <div class="meals-layout">
+          <div>
+            <h3>Who eats what — by day</h3>
+            <div class="weekly-meals-grid" id="weeklyMealsDays"></div>
+          </div>
+          <aside class="wheel-panel">
+            <h3 style="margin-top:0;">Dinner idea wheel</h3>
+            <label for="wheelDaySelect">Day</label>
+            <select id="wheelDaySelect"></select>
+            <p class="wheel-hint" id="wheelDinnerHint">Set dinner time on Kids schedule first.</p>
+            <div class="wheel-container">
+              <div class="wheel-pointer" aria-hidden="true">▼</div>
+              <div class="wheel" id="dinnerWheel" role="img" aria-label="Dinner idea spinner"></div>
+              <div class="wheel-center" aria-hidden="true">🍽</div>
+            </div>
+            <p class="wheel-result" id="wheelResult">Spin for tonight's idea</p>
+            <button type="button" class="primary" id="spinDinnerWheel" style="width:100%;">Spin the wheel</button>
+          </aside>
+        </div>
+
+        <div class="actions" style="margin-top: 1rem;">
+          <button class="primary" id="applyMeals">Apply to week</button>
+          <button class="secondary" id="goToSimFromMeals">View timeline</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
     const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const FULL = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    const STORAGE_KEY = "summer-life-simulator-v5";
+    const STORAGE_KEY = "summer-life-simulator-v6";
+
+    const DEFAULT_FOODS = [
+      "Pasta", "Tacos", "Pizza", "Stir-fry", "Grilled chicken", "Salmon",
+      "Burgers", "Soup & salad", "Rice & curry", "Breakfast for dinner",
+      "Takeout Thai", "BBQ", "Sandwiches", "Quesadillas", "Homemade ramen"
+    ];
+
+    const WHEEL_COLORS = [
+      "#e07a3a", "#3d7ea6", "#c45c8a", "#5ba36b", "#9a7b4f", "#6b5ba3",
+      "#4a8c7a", "#b85c5c", "#5c8ab8", "#8a6b4a"
+    ];
 
     const DEFAULT_DAD_OFFICE = [1, 3];
     const DEFAULT_MOM_OFFICE = [0, 2, 4];
@@ -1167,6 +1414,29 @@
       ).join("");
     }
 
+    function defaultMealsForDay(dayIndex) {
+      const weekend = dayIndex >= 5;
+      const momOffice = !weekend && DEFAULT_MOM_OFFICE.includes(dayIndex);
+      const dadOffice = !weekend && DEFAULT_DAD_OFFICE.includes(dayIndex);
+      return {
+        mealEaters: {
+          breakfast: { dad: true, mom: true, kids: true },
+          lunch: { dad: !dadOffice, mom: !momOffice, kids: true },
+          dinner: { dad: true, mom: true, kids: true }
+        },
+        dinnerIdea: ""
+      };
+    }
+
+    function defaultFoodLikes() {
+      return {
+        dad: ["Pasta", "Tacos", "Burgers", "Grilled chicken", "BBQ"],
+        mom: ["Salmon", "Stir-fry", "Soup & salad", "Pizza", "Rice & curry"],
+        kid0: ["Pasta", "Pizza", "Tacos", "Burgers", "Quesadillas"],
+        kid1: ["Pasta", "Pizza", "Tacos", "Sandwiches", "Breakfast for dinner"]
+      };
+    }
+
     function defaultDaySchedule(dayIndex) {
       const weekend = dayIndex >= 5;
       const momOffice = !weekend && DEFAULT_MOM_OFFICE.includes(dayIndex);
@@ -1175,6 +1445,7 @@
       return {
         ...defaultWorkForDay(dayIndex),
         ...defaultKidForDay(dayIndex),
+        ...defaultMealsForDay(dayIndex),
         dadMeetings: base.dadMeetings,
         momMeetings: base.momMeetings,
         dadLunchStart: base.dadLunch[0],
@@ -1186,7 +1457,19 @@
 
     function migrateSchedule(schedule, dayIndex) {
       const defaults = defaultDaySchedule(dayIndex);
-      return { ...defaults, ...schedule };
+      const merged = { ...defaults, ...schedule };
+      if (!schedule?.mealEaters) {
+        merged.mealEaters = defaults.mealEaters;
+      } else {
+        ["breakfast", "lunch", "dinner"].forEach((meal) => {
+          merged.mealEaters[meal] = {
+            ...defaults.mealEaters[meal],
+            ...(schedule.mealEaters[meal] || {})
+          };
+        });
+      }
+      if (merged.dinnerIdea == null) merged.dinnerIdea = "";
+      return merged;
     }
 
     const state = {
@@ -1200,6 +1483,11 @@
       theme: "summer",
       darkMode: false,
       semiTab: "sim",
+      foods: [...DEFAULT_FOODS],
+      foodLikes: defaultFoodLikes(),
+      foodPerson: "dad",
+      wheelDay: 0,
+      wheelAngle: 0,
       schedules: DAYS.map((_, i) => defaultDaySchedule(i)),
       week: [],
       dayIndex: 0,
@@ -1237,6 +1525,78 @@
       state.spouseName = document.getElementById("spouseName").value.trim() || "Partner";
       state.kidCount = Number(document.getElementById("kidCount").value) || 1;
       state.kidNames = parseKidNames(document.getElementById("kidNames").value, state.kidCount);
+      ensureFoodLikes();
+    }
+
+    function familyMembers() {
+      const members = [
+        { id: "dad", name: state.yourName },
+        { id: "mom", name: state.spouseName }
+      ];
+      state.kidNames.forEach((name, i) => members.push({ id: `kid${i}`, name }));
+      return members;
+    }
+
+    function ensureFoodLikes() {
+      if (!state.foodLikes) state.foodLikes = defaultFoodLikes();
+      if (!state.foodLikes.dad) state.foodLikes.dad = [];
+      if (!state.foodLikes.mom) state.foodLikes.mom = [];
+      const kidDefaults = state.foodLikes.kids || state.foodLikes.kid0 || ["Pasta", "Pizza"];
+      state.kidNames.forEach((_, i) => {
+        const key = `kid${i}`;
+        if (!state.foodLikes[key]) state.foodLikes[key] = [...kidDefaults];
+      });
+    }
+
+    function personLikesFood(personId, food) {
+      return (state.foodLikes[personId] || []).includes(food);
+    }
+
+    function togglePersonFoodLike(personId, food, on) {
+      ensureFoodLikes();
+      const list = state.foodLikes[personId] || (state.foodLikes[personId] = []);
+      if (on && !list.includes(food)) list.push(food);
+      if (!on) state.foodLikes[personId] = list.filter((f) => f !== food);
+    }
+
+    function getEaterIds(dayIndex, meal) {
+      const eaters = state.schedules[dayIndex]?.mealEaters?.[meal]
+        || defaultMealsForDay(dayIndex).mealEaters[meal];
+      const ids = [];
+      if (eaters.dad) ids.push("dad");
+      if (eaters.mom) ids.push("mom");
+      if (eaters.kids) state.kidNames.forEach((_, i) => ids.push(`kid${i}`));
+      return ids;
+    }
+
+    function getDinnerCandidates(dayIndex) {
+      const eaterIds = getEaterIds(dayIndex, "dinner");
+      if (!eaterIds.length) return [...state.foods];
+      const liked = new Set();
+      eaterIds.forEach((id) => {
+        (state.foodLikes[id] || []).forEach((f) => {
+          if (state.foods.includes(f)) liked.add(f);
+        });
+      });
+      const picks = state.foods.filter((f) => liked.has(f));
+      return picks.length ? picks : [...state.foods];
+    }
+
+    function formatDinnerTimeLabel(timeVal) {
+      const opt = DINNER_OPTIONS.find((o) => o.value === timeVal);
+      return opt ? opt.label : timeVal;
+    }
+
+    function eatersSummary(dayIndex, meal) {
+      const y = state.yourName;
+      const s = state.spouseName;
+      const eaters = state.schedules[dayIndex]?.mealEaters?.[meal]
+        || defaultMealsForDay(dayIndex).mealEaters[meal];
+      const parts = [];
+      if (eaters.dad) parts.push(y);
+      if (eaters.mom) parts.push(s);
+      if (eaters.kids) parts.push(kidsLabel());
+      return parts.length ? parts.join(", ") : "No one";
     }
 
     function label(role) {
@@ -1245,6 +1605,7 @@
       if (role === "kids") return state.kidNames.length === 1 ? state.kidNames[0] : "Kids";
       if (role === "risk") return "Crunch";
       if (role === "lunch") return "Lunch";
+      if (role === "meal") return "Meal";
       if (role === "work") return "Work";
       if (role === "activity") return "Activity";
       return role;
@@ -1515,6 +1876,9 @@
           dadOfficeDays: [...state.dadOfficeDays],
           momOfficeDays: [...state.momOfficeDays],
           schedules: state.schedules,
+          foods: state.foods,
+          foodLikes: state.foodLikes,
+          foodPerson: state.foodPerson,
           semiTab: state.semiTab
         }));
       } catch (_) { /* ignore */ }
@@ -1523,6 +1887,7 @@
     function loadSettings() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY)
+          || localStorage.getItem("summer-life-simulator-v5")
           || localStorage.getItem("summer-life-simulator-v4")
           || localStorage.getItem("summer-life-simulator-v3")
           || localStorage.getItem("summer-life-simulator-v2");
@@ -1543,6 +1908,10 @@
         if (data.schedules) {
           state.schedules = data.schedules.map((s, i) => migrateSchedule(s, i));
         }
+        if (data.foods?.length) state.foods = data.foods;
+        if (data.foodLikes) state.foodLikes = data.foodLikes;
+        if (data.foodPerson) state.foodPerson = data.foodPerson;
+        ensureFoodLikes();
         syncOfficeDaysFromSchedules();
 
         document.getElementById("yourName").value = state.yourName;
@@ -1621,6 +1990,7 @@
     function saveScheduleFromForm() {
       saveParentsFromForm();
       saveKidsFromEditor();
+      saveMealsFromEditor();
     }
 
     function loadScheduleToForm() {
@@ -1787,8 +2157,288 @@
       saveKidsDay(dayIndex);
       const header = document.querySelector(`#${kidsFieldId(dayIndex, "wake")}`)?.closest(".weekly-kids-card")?.querySelector(".day-tag");
       if (header) header.textContent = kidsDayTag(dayIndex);
+      if (state.semiTab === "meals") updateWheelHint(dayIndex);
       refreshAllWeekPlans();
       saveSettings();
+    }
+
+    function mealsFieldId(dayIndex, field) {
+      return `wm-meal-${field}-${dayIndex}`;
+    }
+
+    function saveMealsDay(dayIndex) {
+      const card = document.getElementById(mealsFieldId(dayIndex, "card"));
+      if (!card) return;
+      const meals = ["breakfast", "lunch", "dinner"];
+      const eaters = {};
+      meals.forEach((meal) => {
+        eaters[meal] = {
+          dad: !!card.querySelector(`[data-meal="${meal}"][data-person="dad"]`)?.checked,
+          mom: !!card.querySelector(`[data-meal="${meal}"][data-person="mom"]`)?.checked,
+          kids: !!card.querySelector(`[data-meal="${meal}"][data-person="kids"]`)?.checked
+        };
+      });
+      const ideaEl = document.getElementById(mealsFieldId(dayIndex, "idea"));
+      state.schedules[dayIndex] = {
+        ...state.schedules[dayIndex],
+        mealEaters: eaters,
+        dinnerIdea: ideaEl?.value || ""
+      };
+    }
+
+    function saveMealsFromEditor() {
+      for (let i = 0; i < 7; i++) saveMealsDay(i);
+    }
+
+    function renderFoodMenuChips() {
+      const el = document.getElementById("foodMenuChips");
+      if (!el) return;
+      el.innerHTML = state.foods.map((food) => `
+        <button type="button" class="food-chip on" data-food="${food}" title="In household menu">
+          ${food}${state.foods.length > 1 ? `<span class="remove" data-remove-food="${food}" aria-label="Remove">×</span>` : ""}
+        </button>
+      `).join("");
+      el.querySelectorAll("[data-remove-food]").forEach((btn) => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const food = btn.dataset.removeFood;
+          state.foods = state.foods.filter((f) => f !== food);
+          familyMembers().forEach((m) => {
+            if (state.foodLikes[m.id]) {
+              state.foodLikes[m.id] = state.foodLikes[m.id].filter((f) => f !== food);
+            }
+          });
+          renderMealsEditor();
+          saveSettings();
+        };
+      });
+    }
+
+    function renderFoodPersonPicks() {
+      const el = document.getElementById("foodPersonPicks");
+      if (!el) return;
+      el.innerHTML = "";
+      familyMembers().forEach((m) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = m.name;
+        btn.className = state.foodPerson === m.id ? "on" : "";
+        btn.onclick = () => {
+          state.foodPerson = m.id;
+          renderFoodPersonPicks();
+          renderFoodLikesList();
+          saveSettings();
+        };
+        el.appendChild(btn);
+      });
+    }
+
+    function renderFoodLikesList() {
+      const el = document.getElementById("foodLikesList");
+      if (!el) return;
+      const person = state.foodPerson || "dad";
+      el.innerHTML = state.foods.map((food) => `
+        <label class="food-like-item">
+          <input type="checkbox" data-like-food="${food}" ${personLikesFood(person, food) ? "checked" : ""} />
+          ${food}
+        </label>
+      `).join("");
+      el.querySelectorAll("[data-like-food]").forEach((cb) => {
+        cb.onchange = () => {
+          togglePersonFoodLike(person, cb.dataset.likeFood, cb.checked);
+          saveSettings();
+          if (state.wheelDay != null) drawWheel(state.wheelDay);
+        };
+      });
+    }
+
+    function mealEaterCheckboxes(dayIndex, meal, eaters) {
+      const y = state.yourName;
+      const s = state.spouseName;
+      const kids = kidsLabel();
+      return `
+        <label><input type="checkbox" data-meal="${meal}" data-person="dad" ${eaters.dad ? "checked" : ""} /> ${y}</label>
+        <label><input type="checkbox" data-meal="${meal}" data-person="mom" ${eaters.mom ? "checked" : ""} /> ${s}</label>
+        <label><input type="checkbox" data-meal="${meal}" data-person="kids" ${eaters.kids ? "checked" : ""} /> ${kids}</label>
+      `;
+    }
+
+    function buildWeeklyMealsDayCard(dayIndex) {
+      const sch = state.schedules[dayIndex];
+      const eaters = sch.mealEaters || defaultMealsForDay(dayIndex).mealEaters;
+      const dinnerTime = sch.dinnerTime || "21:00";
+      const candidates = getDinnerCandidates(dayIndex);
+      const card = document.createElement("div");
+      card.className = "weekly-meals-card";
+      card.id = mealsFieldId(dayIndex, "card");
+      card.innerHTML = `
+        <div class="weekly-day-header">
+          <span class="day-name">${FULL[dayIndex]}</span>
+          <span class="day-tag">Dinner ${formatDinnerTimeLabel(dinnerTime)}</span>
+        </div>
+        <div class="meal-eaters-block">
+          <span class="meal-label">Breakfast</span>
+          <div class="meal-eater-row">${mealEaterCheckboxes(dayIndex, "breakfast", eaters.breakfast)}</div>
+        </div>
+        <div class="meal-eaters-block">
+          <span class="meal-label">Lunch</span>
+          <div class="meal-eater-row">${mealEaterCheckboxes(dayIndex, "lunch", eaters.lunch)}</div>
+        </div>
+        <div class="meal-eaters-block">
+          <span class="meal-label">Dinner</span>
+          <div class="meal-eater-row">${mealEaterCheckboxes(dayIndex, "dinner", eaters.dinner)}</div>
+        </div>
+        <div class="dinner-idea-row">
+          <div>
+            <label for="${mealsFieldId(dayIndex, "idea")}">Dinner idea</label>
+            <select id="${mealsFieldId(dayIndex, "idea")}">
+              <option value="">— pick or spin —</option>
+              ${candidates.map((f) => `<option value="${f}" ${sch.dinnerIdea === f ? "selected" : ""}>${f}</option>`).join("")}
+            </select>
+          </div>
+          <button type="button" class="secondary" data-spin-day="${dayIndex}">Spin</button>
+        </div>
+      `;
+      const onChange = () => onMealsDayChange(dayIndex);
+      card.querySelectorAll("input[type=checkbox], select").forEach((el) => {
+        el.addEventListener("change", onChange);
+      });
+      card.querySelector("[data-spin-day]").onclick = () => spinDinnerWheel(dayIndex);
+      return card;
+    }
+
+    function onMealsDayChange(dayIndex) {
+      saveMealsDay(dayIndex);
+      const ideaSelect = document.getElementById(mealsFieldId(dayIndex, "idea"));
+      if (ideaSelect) {
+        const candidates = getDinnerCandidates(dayIndex);
+        const current = ideaSelect.value;
+        ideaSelect.innerHTML = `<option value="">— pick or spin —</option>${candidates.map((f) =>
+          `<option value="${f}" ${current === f ? "selected" : ""}>${f}</option>`
+        ).join("")}`;
+        ideaSelect.value = current;
+      }
+      refreshAllWeekPlans();
+      saveSettings();
+    }
+
+    function drawWheel(dayIndex) {
+      const wheel = document.getElementById("dinnerWheel");
+      if (!wheel) return;
+      const foods = getDinnerCandidates(dayIndex);
+      if (!foods.length) {
+        wheel.style.background = "var(--bar-bg)";
+        return;
+      }
+      const seg = 360 / foods.length;
+      const stops = foods.map((f, i) => {
+        const c = WHEEL_COLORS[i % WHEEL_COLORS.length];
+        return `${c} ${i * seg}deg ${(i + 1) * seg}deg`;
+      });
+      wheel.style.background = `conic-gradient(from -90deg, ${stops.join(", ")})`;
+      wheel.style.transform = `rotate(${state.wheelAngle}deg)`;
+    }
+
+    function updateWheelHint(dayIndex) {
+      const hint = document.getElementById("wheelDinnerHint");
+      const result = document.getElementById("wheelResult");
+      if (!hint) return;
+      const dinnerTime = state.schedules[dayIndex]?.dinnerTime || "21:00";
+      const candidates = getDinnerCandidates(dayIndex);
+      const eaters = eatersSummary(dayIndex, "dinner");
+      hint.textContent = `Dinner at ${formatDinnerTimeLabel(dinnerTime)} · ${eaters} · ${candidates.length} idea${candidates.length === 1 ? "" : "s"} on wheel`;
+      if (result && state.schedules[dayIndex]?.dinnerIdea) {
+        result.textContent = `${FULL[dayIndex]}: ${state.schedules[dayIndex].dinnerIdea}`;
+      }
+    }
+
+    function renderWheelDaySelect() {
+      const sel = document.getElementById("wheelDaySelect");
+      if (!sel) return;
+      sel.innerHTML = DAYS.map((d, i) => {
+        const t = formatDinnerTimeLabel(state.schedules[i]?.dinnerTime || "21:00");
+        return `<option value="${i}">${FULL[i]} (${t})</option>`;
+      }).join("");
+      sel.value = String(state.wheelDay ?? 0);
+    }
+
+    function spinDinnerWheel(dayIndex) {
+      const idx = dayIndex ?? Number(document.getElementById("wheelDaySelect")?.value ?? 0);
+      const wheel = document.getElementById("dinnerWheel");
+      const result = document.getElementById("wheelResult");
+      const btn = document.getElementById("spinDinnerWheel");
+      const foods = getDinnerCandidates(idx);
+      if (!foods.length || !wheel) return;
+
+      if (btn) btn.disabled = true;
+      drawWheel(idx);
+
+      const pick = Math.floor(Math.random() * foods.length);
+      const seg = 360 / foods.length;
+      const offset = seg * pick + seg / 2;
+      const spins = 4 + Math.floor(Math.random() * 3);
+      state.wheelAngle += spins * 360 + (360 - offset);
+      wheel.style.transform = `rotate(${state.wheelAngle}deg)`;
+
+      const chosen = foods[pick];
+      state.schedules[idx].dinnerIdea = chosen;
+      state.wheelDay = idx;
+
+      const ideaSelect = document.getElementById(mealsFieldId(idx, "idea"));
+      if (ideaSelect) {
+        const candidates = getDinnerCandidates(idx);
+        ideaSelect.innerHTML = `<option value="">— pick or spin —</option>${candidates.map((f) =>
+          `<option value="${f}" ${chosen === f ? "selected" : ""}>${f}</option>`
+        ).join("")}`;
+        ideaSelect.value = chosen;
+      }
+
+      setTimeout(() => {
+        if (result) result.textContent = `${FULL[idx]}: ${chosen}!`;
+        if (btn) btn.disabled = false;
+        refreshAllWeekPlans();
+        saveSettings();
+      }, 4000);
+    }
+
+    function renderMealsEditor() {
+      ensureFoodLikes();
+      renderFoodMenuChips();
+      renderFoodPersonPicks();
+      renderFoodLikesList();
+      renderWheelDaySelect();
+      const grid = document.getElementById("weeklyMealsDays");
+      if (grid) {
+        grid.innerHTML = "";
+        for (let i = 0; i < 7; i++) grid.appendChild(buildWeeklyMealsDayCard(i));
+      }
+      const day = state.wheelDay ?? 0;
+      drawWheel(day);
+      updateWheelHint(day);
+    }
+
+    function bindMealsInputs() {
+      document.getElementById("addCustomFood")?.addEventListener("click", () => {
+        const input = document.getElementById("customFoodInput");
+        const name = (input?.value || "").trim();
+        if (!name || state.foods.includes(name)) return;
+        state.foods.push(name);
+        input.value = "";
+        renderMealsEditor();
+        saveSettings();
+      });
+      document.getElementById("customFoodInput")?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") document.getElementById("addCustomFood")?.click();
+      });
+      document.getElementById("wheelDaySelect")?.addEventListener("change", (e) => {
+        state.wheelDay = Number(e.target.value);
+        drawWheel(state.wheelDay);
+        updateWheelHint(state.wheelDay);
+        saveSettings();
+      });
+      document.getElementById("spinDinnerWheel")?.addEventListener("click", () => {
+        spinDinnerWheel(Number(document.getElementById("wheelDaySelect")?.value ?? 0));
+      });
     }
 
     function workLocationTag(loc, weekend) {
@@ -1990,6 +2640,7 @@
             document.getElementById("insight").textContent = insightForWeek();
             document.getElementById("log").innerHTML = state.log.map((p) => `<p>${p}</p>`).join("");
           }
+          if (state.semiTab === "meals") renderMealsEditor();
         });
       });
     }
@@ -2197,6 +2848,18 @@
             kind: "routine"
           });
         }
+        const bf = schedule.mealEaters?.breakfast || defaultMealsForDay(day).mealEaters.breakfast;
+        if (bf.dad || bf.mom || bf.kids) {
+          const bfTime = (kidWakeMin ?? kidTimes.wake.start) + 45;
+          slots.push({
+            sort: bfTime,
+            time: formatClock(bfTime),
+            title: `Breakfast — ${eatersSummary(day, "breakfast")}`,
+            tags: ["kids", "dad", "mom", "meal"],
+            conflict: false,
+            kind: "meal"
+          });
+        }
       }
 
       if (kidCare) {
@@ -2377,15 +3040,21 @@
       const dinnerAfterBedtime = kidSleepMin != null && dinnerMin >= kidSleepMin;
       const dinnerSoloCrunch = (dadCoversAlone || momCoversAlone || bothOffice)
         && kidsNeedWatch(dinnerBlock, ctx);
+      const dinnerIdea = (schedule.dinnerIdea || "").trim();
+      const dinnerWho = eatersSummary(day, "dinner");
+      let dinnerTitle = weekend
+        ? `Family dinner at ${formatClock(dinnerMin)}`
+        : `Dinner at ${formatClock(dinnerMin)}`;
+      if (dinnerIdea) dinnerTitle += ` — ${dinnerIdea}`;
+      else dinnerTitle += " + dishes";
+      dinnerTitle += ` (${dinnerWho})`;
       slots.push({
         sort: dinnerMin,
         time: formatClock(dinnerMin),
-        title: weekend
-          ? `Family dinner at ${formatClock(dinnerMin)}`
-          : `Dinner at ${formatClock(dinnerMin)} + dishes`,
-        tags: ["dad", "mom", "kids", dinnerAfterBedtime ? "risk" : ""].filter(Boolean),
+        title: dinnerTitle,
+        tags: ["dad", "mom", "kids", "meal", dinnerAfterBedtime ? "risk" : ""].filter(Boolean),
         conflict: dinnerSoloCrunch || dinnerAfterBedtime,
-        kind: "routine"
+        kind: "meal"
       });
 
       const windDownStart = Math.max(dinnerEnd, (kidSleepMin ?? 21 * 60) + 30);
@@ -2561,6 +3230,12 @@
       if (lateDinnerDays.length) {
         text += `Dinner is after kids' bedtime on ${lateDinnerDays.map((d) => DAYS[d]).join(", ")} — shift dinner earlier or bedtime later. `;
       }
+      const noIdeaDays = state.schedules
+        .map((sch, i) => (!sch.dinnerIdea?.trim() && i < 7 ? i : null))
+        .filter((i) => i !== null);
+      if (noIdeaDays.length >= 4) {
+        text += `Spin the dinner wheel on Meals & food for ${noIdeaDays.slice(0, 3).map((d) => DAYS[d]).join(", ")}${noIdeaDays.length > 3 ? "…" : ""}. `;
+      }
       if (state.stats.sanity < 55) {
         text += `Sanity is dipping — block a walk during the other person's lunch.`;
       } else if (state.stats.work < 55) {
@@ -2604,6 +3279,7 @@
       updateUILabels();
       loadScheduleToForm();
       if (state.semiTab === "kids") renderWeeklyKidsEditor();
+      if (state.semiTab === "meals") renderMealsEditor();
       renderWeek();
       renderStats();
       document.getElementById("insight").textContent = insightForWeek();
@@ -2622,13 +3298,16 @@
     function switchSemiTab(tab) {
       if (state.semiTab === "meetings" && tab !== "meetings") saveWeeklyMeetingsFromEditor();
       if (state.semiTab === "kids" && tab !== "kids") saveKidsFromEditor();
-      if (state.semiTab === "setup" && (tab === "meetings" || tab === "kids")) saveScheduleFromForm();
+      if (state.semiTab === "meals" && tab !== "meals") saveMealsFromEditor();
+      if (state.semiTab === "setup" && (tab === "meetings" || tab === "kids" || tab === "meals")) saveScheduleFromForm();
       if (state.semiTab === "kids" && tab === "setup") saveKidsFromEditor();
+      if (state.semiTab === "meals" && (tab === "setup" || tab === "kids")) saveMealsFromEditor();
       state.semiTab = tab;
       document.getElementById("semiSim").classList.toggle("hidden", tab !== "sim");
       document.getElementById("semiSetup").classList.toggle("hidden", tab !== "setup");
       document.getElementById("semiMeetings").classList.toggle("hidden", tab !== "meetings");
       document.getElementById("semiKids").classList.toggle("hidden", tab !== "kids");
+      document.getElementById("semiMeals").classList.toggle("hidden", tab !== "meals");
       document.querySelectorAll(".semi-tabs button").forEach((btn) => {
         const on = btn.dataset.semi === tab;
         btn.classList.toggle("active", on);
@@ -2636,8 +3315,9 @@
       });
       if (tab === "meetings") renderWeeklyMeetingsEditor();
       if (tab === "kids") renderWeeklyKidsEditor();
+      if (tab === "meals") renderMealsEditor();
       if (tab === "setup") loadScheduleToForm();
-      if (tab === "meetings" || tab === "setup" || tab === "kids") refreshAllWeekPlans();
+      if (tab === "meetings" || tab === "setup" || tab === "kids" || tab === "meals") refreshAllWeekPlans();
       saveSettings();
     }
 
@@ -2654,6 +3334,8 @@
       else if (momLoc === "office") locTag = " · partner office";
       if (care === "camp") locTag += " · camp";
       else if (care === "daycare") locTag += " · daycare";
+      const dinner = state.schedules[i]?.dinnerIdea;
+      if (dinner) locTag += ` · ${dinner}`;
       btn.textContent = `${DAYS[i]}${locTag}${meetings ? ` · ${meetings} calls` : ""}`;
       btn.className = i === state.dayIndex ? "active" : "";
       btn.onclick = () => {
@@ -2696,7 +3378,7 @@
       if (!day) return;
 
       document.getElementById("timeline").innerHTML = day.slots.map((s) => `
-        <div class="slot ${s.conflict ? "conflict" : ""} ${s.kind === "lunch" ? "lunch" : ""} ${s.kind === "work" ? "work" : ""} ${s.kind === "activity" ? "activity" : ""}">
+        <div class="slot ${s.conflict ? "conflict" : ""} ${s.kind === "lunch" ? "lunch" : ""} ${s.kind === "meal" ? "meal" : ""} ${s.kind === "work" ? "work" : ""} ${s.kind === "activity" ? "activity" : ""}">
           <div class="time">${s.time}</div>
           <div>
             <div class="title">${s.title}</div>
@@ -2732,6 +3414,16 @@
       refreshAllWeekPlans();
       switchSemiTab("sim");
     };
+    document.getElementById("applyMeals").onclick = () => {
+      saveMealsFromEditor();
+      refreshAllWeekPlans();
+      saveSettings();
+    };
+    document.getElementById("goToSimFromMeals").onclick = () => {
+      saveMealsFromEditor();
+      refreshAllWeekPlans();
+      switchSemiTab("sim");
+    };
     document.getElementById("nextDay").onclick = advanceDay;
 
     document.querySelectorAll(".semi-tabs button").forEach((btn) => {
@@ -2759,6 +3451,7 @@
     loadScheduleToForm();
     bindScheduleInputs();
     bindKidsQuickAdd();
+    bindMealsInputs();
     bindNameInputs();
     simulateWeek();
   </script>
